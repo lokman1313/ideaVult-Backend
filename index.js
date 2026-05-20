@@ -84,7 +84,15 @@ async function run() {
      res.send(result);
     });
 
-    
+    app.patch("/ideas/:id", async (req, res) => {
+    const id = req.params.id;
+    const updateBody = req.body
+    const result = await ideaCollection.updateOne({
+        _id: new ObjectId(id),
+      },{$set : updateBody});
+
+     res.send(result);
+    });
 
     //all comment
     app.post("/comments", async (req, res) => {
