@@ -77,7 +77,7 @@ async function run() {
   res.send(result);
 });
 
-    app.post("/ideas",async(req,res)=>{
+    app.post("/ideas",verifiToken,async(req,res)=>{
       const idea = req.body
       const result = await ideaCollection.insertOne(idea)
       res.send(result)
@@ -97,7 +97,7 @@ async function run() {
       res.send(result)
     })
 
-    app.get("/ideas/user/:email",async(req,res)=>{
+    app.get("/ideas/user/:email",verifiToken,async(req,res)=>{
       const email = req.params.email
       const query = { userEmail : email };
       const result = await ideaCollection.find(query).toArray()
@@ -126,7 +126,7 @@ async function run() {
     });
 
     //all comment
-    app.post("/comments", async (req, res) => {
+    app.post("/comments",verifiToken, async (req, res) => {
     const comment = req.body;
     comment.createdAt = new Date();
     const result = await commentCollection.insertOne(comment);
@@ -162,7 +162,7 @@ async function run() {
       res.send(result)
     })
     //my comment only
-    app.get("/comments/user/:email",async(req,res)=>{
+    app.get("/comments/user/:email",verifiToken,async(req,res)=>{
       const userEmail = req.params.email
       const quari = { email : userEmail}
       const result = await commentCollection.find(quari).toArray()
