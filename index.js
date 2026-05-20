@@ -88,6 +88,14 @@ async function run() {
       res.send(result)
     })
 
+    
+    app.get("/ideas/user/:email",verifiToken,async(req,res)=>{
+      const email = req.params.email
+      const query = { userEmail : email };
+      const result = await ideaCollection.find(query).toArray()
+      res.send(result)
+    })
+    
     app.get("/ideas/:id",verifiToken,async(req,res)=>{
       const id = req.params.id
       const quari = {
@@ -96,14 +104,6 @@ async function run() {
       const result = await ideaCollection.findOne(quari)
       res.send(result)
     })
-
-    app.get("/ideas/user/:email",verifiToken,async(req,res)=>{
-      const email = req.params.email
-      const query = { userEmail : email };
-      const result = await ideaCollection.find(query).toArray()
-      res.send(result)
-    })
-
 
     app.delete("/ideas/:id", async (req, res) => {
     const id = req.params.id;
