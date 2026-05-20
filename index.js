@@ -2,9 +2,11 @@ require("dotenv").config();
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const port = 4000 || process.env.PORT
+const port = process.env.PORT || 4000;
 const uri = process.env.MONGODB_URI
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { createRemoteJWKSet } = require("jose-cjs");
+const { jwtVerify } = require("jose-cjs");
 
 
 app.use(cors())
@@ -21,6 +23,30 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+
+
+//middilwar JWT = Json Web Token
+const JWKS = createRemoteJWKSet(
+  new URL(`${process.env.CLIENT_URL}/api/auth/jwks`)
+)
+const verifiToken =async (req,res,next)=>{
+  const header = req?.headers.authorization
+  if(!header){
+    return res.status(401).json({ message: "Unauthorized" })
+  }
+  const token =header.split(" ")[1]
+  if(!token){
+    return res.status(401).json({ message: "Unauthorized" })
+  }
+  try{
+    const {payload} = await jwtVerify(token,JWKS)
+    console.log(payload)
+     next()
+  }
+  catch{
+    return res.status(403).json({ message: "Forbiden" })
+  }
+}
 
 async function run() {
   try {
@@ -57,7 +83,12 @@ async function run() {
       res.send(result)
     })
 
-    app.get("/ideas/:id",async(req,res)=>{
+    app.get("/hero",async(req,res)=>{
+      const result = await ideaCollection.find().limit(6).toArray();
+      res.send(result)
+    })
+
+    app.get("/ideas/:id",verifiToken,async(req,res)=>{
       const id = req.params.id
       const quari = {
         _id : new ObjectId(id)
