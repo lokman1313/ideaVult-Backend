@@ -5,8 +5,7 @@ const cors = require('cors')
 const port = process.env.PORT || 4000;
 const uri = process.env.MONGODB_URI
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const { createRemoteJWKSet } = require("jose-cjs");
-const { jwtVerify } = require("jose-cjs");
+const { createRemoteJWKSet ,jwtVerify} = require("jose-cjs");
 
 
 app.use(cors())
@@ -30,18 +29,19 @@ const JWKS = createRemoteJWKSet(
   new URL(`${process.env.CLIENT_URL}/api/auth/jwks`)
 )
 const verifiToken =async (req,res,next)=>{
-  const header = req?.headers.authorization
-  if(!header){
+  const authHeader = req.headers.authorization
+  if(!authHeader){
     return res.status(401).json({ message: "Unauthorized" })
   }
-  const token =header.split(" ")[1]
+  const token =authHeader.split(" ")[1]
+  
   if(!token){
     return res.status(401).json({ message: "Unauthorized" })
   }
   try{
     const {payload} = await jwtVerify(token,JWKS)
     console.log(payload)
-     next()
+    next()
   }
   catch{
     return res.status(403).json({ message: "Forbiden" })
