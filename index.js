@@ -30,11 +30,26 @@ async function run() {
     const commentCollection =db.collection("comment")
      
     //all ideas
-    app.get("/ideas", async(req,res)=>{
-        const allIdeas = ideaCollection.find()
-        const result = await allIdeas.toArray()
-        res.send(result)
-    })
+    app.get("/ideas", async (req, res) => {
+   const { search, category } = req.query;
+
+  const query = {};
+
+  if (search) {
+    query.project = {
+      $regex: search,
+      $options: "i",
+    };
+  }
+
+  if (category) {
+    query.category = category;
+  }
+
+  const result = await ideaCollection.find(query).toArray();
+
+  res.send(result);
+});
 
     app.post("/ideas",async(req,res)=>{
       const idea = req.body
